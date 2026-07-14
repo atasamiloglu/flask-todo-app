@@ -58,7 +58,7 @@
                     </li>
 
                     {% endif %}
-                
+
 
                 </ul>
 
@@ -72,52 +72,61 @@
         <h1 class="text-center mt-5">📝 My Tasks</h1>
         <p class="text-center">Manage your tasks efficiently with our ToDo App.</p>
 
-        <form method="POST">
+        <form method="POST" class="mt-4">
+            <div class="input-group">
+                <input type="text" class="form-control" name="title" placeholder="Add new task..." required>
 
-    <div class="input-group">
+                <button class="btn btn-primary" type="submit">
+                    Add
+                </button>
+            </div>
+        </form>
 
-        <input
-            type="text"
-            class="form-control"
-            name="title"
-            placeholder="Add new task..."
-            required>
+        <div class="mt-4">
 
-        <button class="btn btn-primary" type="submit">
-            Add
-        </button>
+            {% if tasks %}
 
-    </div>
+            <ul class="list-group">
 
-</form>
-<div class="mt-4">
-
-    {% if tasks %}
-
-        <ul class="list-group">
-
-            {% for task in tasks %}
+                {% for task in tasks %}
 
                 <li class="list-group-item d-flex justify-content-between align-items-center">
 
-                    {{ task.title }}
+                    {% if task.completed %}
+                    <span class="text-decoration-line-through text-muted">
+                        ✅ {{ task.title }}
+                    </span>
+                    {% else %}
+                    <span>
+                        {{ task.title }}
+                    </span>
+                    {% endif %}
+
+                    {% if not task.completed %}
+                    <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-success btn-sm">
+                        ✓ Complete
+                    </a>
+                    {% endif %}
+
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger btn-sm">
+                        🗑 Delete
+                    </a>
 
                 </li>
 
-            {% endfor %}
+                {% endfor %}
 
-        </ul>
+            </ul>
 
-    {% else %}
+            {% else %}
 
-        <p class="text-center text-muted mt-3">
-            No tasks yet.
-        </p>
+            <p class="text-center text-muted mt-3">
+                No tasks yet.
+            </p>
 
-    {% endif %}
+            {% endif %}
 
-</div>
-
+        </div>
     </div>
 
 
