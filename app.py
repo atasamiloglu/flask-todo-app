@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from config import Config
 from extensions import db, login_manager
-from models import User
+from models import User, Task
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -18,10 +18,27 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 @login_required
 def index():
-    return render_template("index.html")
+
+    if request.method == "POST":
+
+        title = request.form["title"]
+
+        new_task = Task(
+            title=title,
+            user_id=current_user.id
+        )
+
+        db.session.add(new_task)
+        db.session.commit()
+
+        return redirect(url_for("index"))
+
+    tasks = Task.query.filter_by(user_id=current_user.id).all()
+
+    return render_template("index.html", tasks=tasks)
 
 
 @app.route("/login", methods=["GET", "POST"])
