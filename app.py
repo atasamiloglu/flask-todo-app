@@ -1,17 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for
 from config import Config
-from extensions import db
+from extensions import db, login_manager
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
 
 app = Flask(__name__)
 
 app.config.from_object(Config)
 
 db.init_app(app)
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
@@ -32,13 +40,15 @@ def login():
         if not check_password_hash(user.password, password):
             return "Incorrect password!"
 
-        return "Login successful!"
+        login_user(user)
+        return redirect(url_for("index"))
 
     return render_template("login.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    
 
     if request.method == "POST":
 
@@ -71,6 +81,12 @@ def register():
         return redirect(url_for("login"))
 
     return render_template("register.html")
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 
 with app.app_context():
