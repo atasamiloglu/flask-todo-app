@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from config import Config
 from extensions import db
 from models import User
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -16,8 +16,24 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user = User.query.filter_by(username=username).first()
+
+        if not user:
+            return "User not found!"
+
+        if not check_password_hash(user.password, password):
+            return "Incorrect password!"
+
+        return "Login successful!"
+
     return render_template("login.html")
 
 
