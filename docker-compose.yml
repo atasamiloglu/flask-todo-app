@@ -1,4 +1,3 @@
-
 services:
   postgres:
     image: postgres:17
@@ -16,6 +15,21 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: todo_flask
+
+    restart: always
+
+    ports:
+      - "5000:5000"
+
+    depends_on:
+      - postgres
+
+    environment:
+      DATABASE_URL: postgresql://postgres:123456@postgres:5432/todo_db
 
 volumes:
   postgres_data:
