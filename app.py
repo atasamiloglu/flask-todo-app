@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from config import Config
 from extensions import db, login_manager
 from models import User, Task
@@ -52,10 +52,12 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if not user:
-            return "User not found!"
+            flash("User not found!", "danger")
+            return redirect(url_for("login"))
 
         if not check_password_hash(user.password, password):
-            return "Incorrect password!"
+            flash("Incorrect password!", "danger")
+            return redirect(url_for("login"))
 
         login_user(user)
         return redirect(url_for("index"))
@@ -75,14 +77,16 @@ def register():
         confirm_password = request.form["confirm_password"]
 
         if password != confirm_password:
-            return "Passwords do not match!"
+            flash("Passwords do not match!", "danger")
+            return redirect(url_for("register"))
 
         existing_user = User.query.filter(
             (User.username == username) | (User.email == email)
         ).first()
 
         if existing_user:
-            return "Username or email already exists!"
+            flash("Username or email already exists!", "danger")
+            return redirect(url_for("register"))
 
         hashed_password = generate_password_hash(password)
 
@@ -95,6 +99,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
+        flash("Registration successful! You can now log in.", "success")
         return redirect(url_for("login"))
 
     return render_template("register.html")
