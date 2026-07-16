@@ -1,5 +1,7 @@
 from extensions import db
 from flask_login import UserMixin
+from datetime import datetime
+
 
 
 class User(UserMixin, db.Model):
@@ -19,6 +21,8 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    deadline = db.Column(db.DateTime, nullable=True)
 
     user_id = db.Column(
         db.Integer,
